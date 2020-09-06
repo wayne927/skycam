@@ -1,0 +1,15 @@
+[Unit]
+Description='Skycam on pizero"
+# Only start this after networking target is reached
+After=network.target
+
+[Service]
+# root needed to bind port 80
+User=root
+# Go to directory and run the command
+WorkingDirectory=/home/pi/skycam
+ExecStart=gunicorn -w 3 -b 0.0.0.0:80 main:app
+
+[Install]
+# If enabled during boot, only start when multi-user system is up 
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+<html>
+
+
+<head>
+<style>
+body {
+    font-family: sans-serif;
+    font-size: 18px;
+}
+ul {
+    list-style: none;
+    line-height: 30px;
+}
+</style>
+</head>
+
+<body>
+<h1>current dir: {{ current_dir }}/</h1>
+<ul>
+{% for item in dirs %}
+    <li><a href='/files/{{ item }}/'>{{ item }}/</a></li>
+{% endfor %}
+</ul>
+<ul>
+{% for item in files %}
+    <li><a href='/{{ current_dir }}/{{ item }}'>{{ item }}</a></li>
+{% endfor %}
+</ul>
+</body>
+
+</html>
