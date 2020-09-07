@@ -1,4 +1,4 @@
-from flask import Flask, render_template, make_response
+from flask import Flask, render_template, make_response, request
 import os
 from datetime import datetime
 import camera
@@ -30,22 +30,49 @@ def returnfile(filename) :
 
 @app.route("/")
 def home() :
-    return render_template('index.html')
+    return app.send_static_file('index.html')
 
-@app.route("/shoot")
+def setting_is_valid(setting) :
+    return (setting and not setting.isspace())
+
+@app.route("/shoot", methods=['POST'])
 def take_pic() :
+    if (not request.form) :
+        return "Error in form"
+
+    if (not setting_is_valid(request.form['filename'])) :
+        return "Error in file name"
+    else :
+        filebase = request.form['filename']
+
     time_str = datetime.now().strftime('%m-%d-%Y_%H.%M.%S')
-    filebase = 'pi'
     filename = filebase + '_' + time_str + '.jpg'
 
     settings = {'output': camera_root + '/files/' + filename}
-    settings['width'] = 2000
-    settings['height'] = int(settings['width']/3280.0*2464.0)
-    settings['rotation'] = 180
-    settings['quality'] = 100
-    settings['ISO'] = 800
-    settings['shutter'] = camera.shutter_in_seconds(1)
     settings['verbose'] = ""
+
+    if (setting_is_valid(request.form['width'])) :
+        settings['width'] = request.form['width']
+
+    if (setting_is_valid(request.form['height'])) :
+        settings['height'] = request.form['height']
+    
+    #settings['height'] = int(settings['width']/3280.0*2464.0)
+
+    if (setting_is_valid(request.form['rotation'])) :
+        settings['rotation'] = request.form['rotation']
+
+    if (setting_is_valid(request.form['quality'])) :
+        settings['quality'] = request.form['quality']
+
+    if (setting_is_valid(request.form['sharpness'])) :
+        settings['sharpness'] = request.form['sharpness']
+
+    if (setting_is_valid(request.form['ISO'])) :
+        settings['ISO'] = request.form['ISO']
+
+    if (setting_is_valid(request.form['shutter'])) :
+        settings['shutter'] = camera.shutter_in_seconds(float(request.form['shutter']))
 
     output = camera.shoot(settings)
     output = output.replace('\n', '<br>')
