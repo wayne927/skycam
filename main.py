@@ -1,5 +1,7 @@
 from flask import Flask, render_template, make_response
 import os
+from datetime import datetime
+import camera
 
 app = Flask(__name__)
 
@@ -8,7 +10,9 @@ camera_root = '/home/pi/camera'
 
 def list_dir(directory) :
     local_dir = camera_root + '/' + directory
-    ls_list = sorted([x for x in os.listdir(local_dir) if (not (x == '.' or x == '..'))])
+    ls_list = [local_dir + '/' + x for x in os.listdir(local_dir) if (not (x == '.' or x == '..'))]
+    ls_list.sort(key=os.path.getmtime, reverse=True)
+    ls_list = [os.path.basename(x) for x in ls_list]
     dir_list =   [x for x in ls_list if os.path.isdir(local_dir + '/' + x)]
     files_list = [x for x in ls_list if x not in dir_list]
 
@@ -28,7 +32,25 @@ def returnfile(filename) :
 def home() :
     return render_template('index.html')
 
-#@app.route("/files/<directory>/", methods=['GET'])
+@app.route("/shoot")
+def take_pic() :
+    time_str = datetime.now().strftime('%m-%d-%Y_%H.%M.%S')
+    filebase = 'pi'
+    filename = filebase + '_' + time_str + '.jpg'
+
+    settings = {'output': camera_root + '/files/' + filename}
+    settings['width'] = 2000
+    settings['height'] = int(settings['width']/3280.0*2464.0)
+    settings['rotation'] = 180
+    settings['quality'] = 100
+    settings['ISO'] = 800
+    settings['shutter'] = camera.shutter_in_seconds(1)
+    settings['verbose'] = ""
+
+    output = camera.shoot(settings)
+    output = output.replace('\n', '<br>')
+    return render_template('shoot.html', pic_file='files/'+filename, command_output=output)
+
 @app.route("/<path:req_path>")
 def show(req_path) :
     req_path = req_path.strip('/')
