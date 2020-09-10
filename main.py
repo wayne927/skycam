@@ -32,6 +32,11 @@ def returnfile(filename) :
 def home() :
     return app.send_static_file('index.html')
 
+@app.route("/timelapse")
+def take_timelapse() :
+    camera.timelapse()
+    return "timelapse return"
+
 def setting_is_valid(setting) :
     return (setting and not setting.isspace())
 
@@ -56,8 +61,6 @@ def take_pic() :
 
     if (setting_is_valid(request.form['height'])) :
         settings['height'] = request.form['height']
-    
-    #settings['height'] = int(settings['width']/3280.0*2464.0)
 
     if (setting_is_valid(request.form['rotation'])) :
         settings['rotation'] = request.form['rotation']

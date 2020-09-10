@@ -1,5 +1,6 @@
 import subprocess
 from datetime import datetime
+import psutil
 
 def shoot(settings) :
     command = ['/usr/bin/raspistill']
@@ -15,6 +16,20 @@ def shoot(settings) :
 
 def shutter_in_seconds(t) :
     return int(t * 1000000)
+
+def timelapse() :
+    subprocess.Popen('/home/pi/skycam/timelapse.sh', '20')
+
+def get_camera_pid() :
+    pid = 0
+    for p in psutil.process_iter(['pid', 'name']) :
+        try :
+            if (p.info['name'].lower() == 'raspistill') :
+                pid = p.info['pid']
+                break
+        except :
+            pass
+    return pid
 
 if __name__ == "__main__" :
     time_str = datetime.now().strftime('%m-%d-%Y_%H.%M.%S')

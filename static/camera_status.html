@@ -1,0 +1,33 @@
+<html>
+
+
+<head>
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+<script>
+
+function getData() {
+    $.get({url: "raspistill_out.txt", cache: false, success: function(data, status){
+        var str = data;
+        str = str.replace(" ", "&nbsp;");
+        str = str.split("\n").join("<br>");
+        $("#content").html(str);
+    }});
+}
+
+$(document).ready(function(){
+    setInterval(getData, 1000);
+});
+</script>
+
+</head>
+
+<body>
+<h2>Skycam output</h2>
+
+<div id="content"></div>
+
+</body>
+
+</html>
