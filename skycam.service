@@ -8,7 +8,7 @@ After=network.target
 User=root
 # Go to directory and run the command
 WorkingDirectory=/home/pi/skycam
-ExecStart=gunicorn -w 3 -b 0.0.0.0:80 main:app
+ExecStart=gunicorn3 -w 3 -b 0.0.0.0:80 main:app
 
 [Install]
 # If enabled during boot, only start when multi-user system is up 
