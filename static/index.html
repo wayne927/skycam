@@ -14,6 +14,15 @@ function adjustHeight() {
         document.getElementById('height').value = Math.round(width / 3280.0*2464.0)
     }
 }
+
+function toggleTimelapse() {
+    document.getElementById('cadence').value = ""
+    document.getElementById('duration').value = ""
+
+    var timelapseEnabled = document.getElementById('timelapse').checked
+    document.getElementById('cadence').disabled = !timelapseEnabled
+    document.getElementById('duration').disabled = !timelapseEnabled
+}
 </script>
 </head>
 
@@ -54,11 +63,28 @@ function adjustHeight() {
     <td>Shutter</td>
     <td><input type="text" id="shutter" name="shutter"></td>
     </tr>
+
+    <tr><td>&nbsp;</td></tr>
+
+    <tr>
+    <td><input type="checkbox" id="timelapse", name="timelapse" value="Timelapse" onchange="toggleTimelapse()">Timelapse</td>
+    </tr>
+    <tr>
+    <td>Cadence</td>
+    <td><input type="text" id="cadence" name="cadence" disabled></td>
+    </tr>
+    <tr>
+    <td>Duration</td>
+    <td><input type="text" id="duration" name="duration" disabled></td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
     </table>
 
     <input type="submit" value="Shoot">
 
 </form>
+
+<h2><a href="files/">Files list</a></h2>
 
 </body>
 

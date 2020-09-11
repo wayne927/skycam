@@ -32,12 +32,11 @@ def returnfile(filename) :
 def home() :
     return app.send_static_file('index.html')
 
-@app.route("/timelapse")
-def take_timelapse() :
-    camera.timelapse()
-    return "timelapse return"
+def setting_is_valid(form, setting_str) :
+    if (setting_str not in form.keys()) :
+        return False
 
-def setting_is_valid(setting) :
+    setting = form[setting_str]
     return (setting and not setting.isspace())
 
 @app.route("/shoot", methods=['POST'])
@@ -45,41 +44,63 @@ def take_pic() :
     if (not request.form) :
         return "Error in form"
 
-    if (not setting_is_valid(request.form['filename'])) :
+    if (not setting_is_valid(request.form, 'filename')) :
         return "Error in file name"
     else :
         filebase = request.form['filename']
 
-    time_str = datetime.now().strftime('%m-%d-%Y_%H.%M.%S')
-    filename = filebase + '_' + time_str + '.jpg'
+    settings = {'verbose': ''}
 
-    settings = {'output': camera_root + '/files/' + filename}
-    settings['verbose'] = ""
-
-    if (setting_is_valid(request.form['width'])) :
+    if (setting_is_valid(request.form, 'width')) :
         settings['width'] = request.form['width']
 
-    if (setting_is_valid(request.form['height'])) :
+    if (setting_is_valid(request.form, 'height')) :
         settings['height'] = request.form['height']
 
-    if (setting_is_valid(request.form['rotation'])) :
+    if (setting_is_valid(request.form, 'rotation')) :
         settings['rotation'] = request.form['rotation']
 
-    if (setting_is_valid(request.form['quality'])) :
+    if (setting_is_valid(request.form, 'quality')) :
         settings['quality'] = request.form['quality']
 
-    if (setting_is_valid(request.form['sharpness'])) :
+    if (setting_is_valid(request.form, 'sharpness')) :
         settings['sharpness'] = request.form['sharpness']
 
-    if (setting_is_valid(request.form['ISO'])) :
+    if (setting_is_valid(request.form, 'ISO')) :
         settings['ISO'] = request.form['ISO']
 
-    if (setting_is_valid(request.form['shutter'])) :
+    if (setting_is_valid(request.form, 'shutter')) :
         settings['shutter'] = camera.shutter_in_seconds(float(request.form['shutter']))
 
-    output = camera.shoot(settings)
-    output = output.replace('\n', '<br>')
-    return render_template('shoot.html', pic_file='files/'+filename, command_output=output)
+    isTimelapse = True
+    # Timelapse requires both cadence and duration
+    # If either is missing, it's for single shot
+    if (setting_is_valid(request.form, 'cadence')) :
+        # the setting's name in raspistill is "timelapse"
+        settings['timelapse'] = camera.timelapse_in_seconds(float(request.form['cadence']))
+    else :
+        isTimelapse = False
+
+    if (setting_is_valid(request.form, 'duration')) :
+        # the setting's name in raspistill is "timeout"
+        settings['timeout'] = camera.timelapse_in_seconds(float(request.form['duration']))
+    else :
+        isTimelapse = False
+
+    if (isTimelapse) :
+        settings['output'] = camera_root + '/files/' + filebase + '_%06d.jpg'
+        camera.timelapse(settings)
+        return app.send_static_file('camera_status.html')
+    else :
+        time_str = datetime.now().strftime('%m-%d-%Y_%H.%M.%S')
+        filename = filebase + '_' + time_str + '.jpg'
+
+        settings['output'] = camera_root + '/files/' + filename
+
+        output = camera.shoot(settings)
+        output = output.replace('\n', '<br>')
+        return render_template('shoot.html', pic_file='files/'+filename, command_output=output)
+
 
 @app.route("/<path:req_path>")
 def show(req_path) :

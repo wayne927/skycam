@@ -2,23 +2,30 @@ import subprocess
 from datetime import datetime
 import psutil
 
-def shoot(settings) :
+def shutter_in_seconds(t) :
+    return int(t * 1000000)
+def timelapse_in_seconds(t) :
+    return int(t * 1000)
+
+def parse_settings(settings) :
     command = ['/usr/bin/raspistill']
     for s,val in settings.items() :
         command.append('--'+str(s))
         if (val) :
             command.append(str(val))
-
     print(command)
+    return command
 
+def shoot(settings) :
+    command = parse_settings(settings)
     output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    # output is a binary string. Need decode to convert to ASCII
     return output.decode()
 
-def shutter_in_seconds(t) :
-    return int(t * 1000000)
-
-def timelapse() :
-    subprocess.Popen('/home/pi/skycam/timelapse.sh', '20')
+def timelapse(settings) :
+    command = parse_settings(settings)
+    with open('static/raspistill_out.txt', 'w') as out :
+        subprocess.Popen(command, stdout=out, stderr=out)
 
 def get_camera_pid() :
     pid = 0

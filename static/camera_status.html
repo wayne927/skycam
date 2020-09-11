@@ -8,7 +8,7 @@
 <script>
 
 function getData() {
-    $.get({url: "raspistill_out.txt", cache: false, success: function(data, status){
+    $.get({url: "/static/raspistill_out.txt", cache: false, success: function(data, status){
         var str = data;
         str = str.replace(" ", "&nbsp;");
         str = str.split("\n").join("<br>");
