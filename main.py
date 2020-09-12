@@ -6,7 +6,6 @@ import camera
 app = Flask(__name__)
 
 camera_root = '/home/pi/camera'
-#camera_files = camera_root + '/files'
 
 def list_dir(directory) :
     local_dir = camera_root + '/' + directory
@@ -16,7 +15,7 @@ def list_dir(directory) :
     dir_list =   [x for x in ls_list if os.path.isdir(local_dir + '/' + x)]
     files_list = [x for x in ls_list if x not in dir_list]
 
-    return render_template('files.html', files=files_list, dirs=dir_list, current_dir=directory)
+    return [files_list, dir_list]
     
 def returnfile(filename) :
     infile = open(camera_root + '/' + filename, 'rb')
@@ -30,7 +29,8 @@ def returnfile(filename) :
 
 @app.route("/")
 def home() :
-    return app.send_static_file('index.html')
+    files_list = list_dir('files')
+    return render_template('index.html', files=files_list[0][:10])
 
 def setting_is_valid(form, setting_str) :
     if (setting_str not in form.keys()) :
@@ -83,7 +83,7 @@ def take_pic() :
 
     if (setting_is_valid(request.form, 'duration')) :
         # the setting's name in raspistill is "timeout"
-        settings['timeout'] = camera.timelapse_in_seconds(float(request.form['duration']))
+        settings['timeout'] = camera.timelapse_in_minutes(float(request.form['duration']))
     else :
         isTimelapse = False
 
@@ -101,20 +101,25 @@ def take_pic() :
         output = output.replace('\n', '<br>')
         return render_template('shoot.html', pic_file='files/'+filename, command_output=output)
 
+@app.route("/camera_pid")
+def get_camera_pid() :
+    return str(camera.get_camera_pid())
+
+@app.route("/camera_status")
+def get_camera_status() :
+    return app.send_static_file('camera_status.html')
 
 @app.route("/<path:req_path>")
 def show(req_path) :
     req_path = req_path.strip('/')
     if (os.path.isdir(camera_root + '/' + req_path)) :
-        return list_dir(req_path)
+        [files_list, dir_list] = list_dir(req_path)
+        return render_template('files.html', files=files_list, dirs=dir_list, current_dir=req_path)
     elif (req_path[-4:].lower() == '.jpg') :
         return returnfile(req_path)    
     else :
         return "Path not found"
-    
-
 
 if __name__ == "__main__" :
     app.run(host='0.0.0.0', debug=True, port=80)
-
 

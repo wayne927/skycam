@@ -1,24 +1,13 @@
 <html>
-
-
 <head>
-<style>
-body {
-    font-family: sans-serif;
-    font-size: 18px;
-}
-ul {
-    list-style: none;
-    line-height: 30px;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="/static/style.css">
 </head>
 
 <body>
 <h1>current dir: {{ current_dir }}/</h1>
 <ul>
 {% for item in dirs %}
-    <li><a href='/files/{{ item }}/'>{{ item }}/</a></li>
+    <li><a class='dir_links' href='/files/{{ item }}/'>{{ item }}/</a></li>
 {% endfor %}
 </ul>
 <ul>

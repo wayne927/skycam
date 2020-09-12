@@ -1,11 +1,14 @@
 import subprocess
 from datetime import datetime
 import psutil
+import os
 
 def shutter_in_seconds(t) :
     return int(t * 1000000)
 def timelapse_in_seconds(t) :
     return int(t * 1000)
+def timelapse_in_minutes(t) :
+    return int(t * 60 * 1000)
 
 def parse_settings(settings) :
     command = ['/usr/bin/raspistill']
@@ -29,11 +32,13 @@ def timelapse(settings) :
 
 def get_camera_pid() :
     pid = 0
-    for p in psutil.process_iter(['pid', 'name']) :
+    for p in psutil.process_iter(['pid', 'name', 'status']) :
         try :
             if (p.info['name'].lower() == 'raspistill') :
-                pid = p.info['pid']
-                break
+                print(p.info)
+                if (p.info['status'] != psutil.STATUS_ZOMBIE) :
+                    pid = p.info['pid']
+                    break
         except :
             pass
     return pid

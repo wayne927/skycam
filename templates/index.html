@@ -1,0 +1,119 @@
+<html>
+
+<head>
+<title>Skycam</title>
+<link rel="stylesheet" type="text/css" href="/static/style.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+
+function getCameraStatus() {
+    $('#see_output_link').prop('hidden', true)
+    $.get({url: "/camera_pid", cache: false, success: function(data, status){
+        var pid = data
+        if (pid != "0") {
+            $('#shoot_button').prop('value', 'Camera running...')
+            $('#shoot_button').prop('disabled', true)
+            $('#see_output_link').prop('hidden', false)
+        }
+    }});
+}
+
+function adjustHeight() {
+    var width_str = $('#width').val()
+    if (width_str == "") {
+        $('#height').prop('value', '')
+    } else {
+        var width = parseInt(width_str)
+        $('#height').prop('value', Math.round(width / 3280.0*2464.0))
+    }
+}
+
+function toggleTimelapse() {
+    $('#cadence').prop('value', '')
+    $('#duration').prop('value', '')
+
+    var timelapseEnabled = $('#timelapse').prop('checked')
+    $('#cadence').prop('disabled', !timelapseEnabled)
+    $('#duration').prop('disabled', !timelapseEnabled)
+}
+
+$(document).ready(getCameraStatus)
+    
+</script>
+</head>
+
+<body>
+<h2>Skycam</h2>
+
+<form action="/shoot" method="POST">
+    <table>
+    <tr>
+    <td>File name</td>
+    <td><input type="text" id="filename" name="filename" value="pi"></td>
+    </tr>
+    <tr>
+    <td>Width</td>
+    <td><input type="text" id="width" name="width" value="1000" onkeyup="adjustHeight()"></td>
+    </tr>
+    <tr>
+    <td>Height</td>
+    <td><input type="text" id="height" name="height" value="751"></td>
+    </tr>
+    <tr>
+    <td>Rotation</td>
+    <td><input type="text" id="rotation" name="rotation" value="180"></td>
+    </tr>
+    <tr>
+    <td>Quality</td>
+    <td><input type="text" id="quality" name="quality" value="100"></td>
+    </tr>
+    <tr>
+    <td>Sharpness</td>
+    <td><input type="text" id="sharpness" name="sharpness" value="50"></td>
+    </tr>
+    <tr>
+    <td>ISO</td>
+    <td><input type="text" id="ISO" name="ISO"></td>
+    </tr>
+    <tr>
+    <td>Shutter</td>
+    <td><input type="text" id="shutter" name="shutter" placeholder="seconds"></td>
+    </tr>
+
+    <tr><td>&nbsp;</td></tr>
+
+    <tr>
+    <td><input type="checkbox" id="timelapse", name="timelapse" value="Timelapse" onchange="toggleTimelapse()"><label for="timelapse"><span style="font-size: 18px">Timelapse</span></label></td>
+    </tr>
+    <tr>
+    <td>Cadence</td>
+    <td><input type="text" id="cadence" name="cadence" placeholder="seconds" disabled></td>
+    </tr>
+    <tr>
+    <td>Duration</td>
+    <td><input type="text" id="duration" name="duration" placeholder="minutes" disabled></td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+    </table>
+
+    <input type="submit" id="shoot_button" value="Shoot">
+
+</form>
+
+<!-- hidden unless camera is running -->
+<p id="see_output_link"><a href="/camera_status">See current output</a></p>
+
+<hr>
+
+<h2>Recent files</h2>
+<ul>
+    {% for item in files %}
+    <li><a href='/files/{{ item }}'>{{ item }}</a></li>
+    {% endfor %}
+</ul>
+
+<p><a href="/files/">All files</a></p>
+
+</body>
+
+</html>
