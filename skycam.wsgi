@@ -1,4 +1,7 @@
 #/usr/bin/python3
 import sys
-sys.path.insert(0,"/var/www/skycam/")
+
+# the path in the server that contains main.py so it can imported
+sys.path.insert(0, "/var/www/skycam/")
+
 from main import app as application
