@@ -8,14 +8,27 @@
 
 function getCameraStatus() {
     $('#see_output_link').prop('hidden', true)
+    $('#camera_kill_link').prop('hidden', true)
     $.get({url: "/camera_pid", cache: false, success: function(data, status){
         var pid = data
         if (pid != "0") {
             $('#shoot_button').prop('value', 'Camera running...')
             $('#shoot_button').prop('disabled', true)
             $('#see_output_link').prop('hidden', false)
+            $('#camera_kill_link').prop('hidden', false)
         }
     }});
+}
+
+function getTemperature() {
+    $.get({url: "/camera_temperature", cache: false, success: function(data, status){
+        $('#temperature').html(data);
+    }})
+}
+
+function setImageWidth(width) {
+    $('#width').prop('value', width)
+    adjustHeight()
 }
 
 function adjustHeight() {
@@ -37,7 +50,10 @@ function toggleTimelapse() {
     $('#duration').prop('disabled', !timelapseEnabled)
 }
 
-$(document).ready(getCameraStatus)
+$(document).ready(function() {
+    getCameraStatus()
+    getTemperature()
+})
     
 </script>
 </head>
@@ -45,7 +61,9 @@ $(document).ready(getCameraStatus)
 <body>
 <h2>Skycam</h2>
 
-<form action="/shoot" method="POST">
+<p>Temperature: <span id="temperature"></span></p>
+
+<form action="/shoot" method="POST" autocomplete="off">
     <table>
     <tr>
     <td>File name</td>
@@ -58,6 +76,17 @@ $(document).ready(getCameraStatus)
     <tr>
     <td>Height</td>
     <td><input type="text" id="height" name="height" value="751"></td>
+    </tr>
+    <tr>
+    <td colspan="2">
+        <input type="radio" name="img_size" id="size_max" onclick="setImageWidth(3280)">
+            <label for="size_max">Max</label>&nbsp;
+        <input type="radio" name="img_size" id="size_medium" onclick="setImageWidth(2000)")>
+            <label for="size_medium">Medium</label>&nbsp;
+        <input type="radio" name="img_size" id="size_small" onclick="setImageWidth(1000)">
+            <label for="size_small">Small</label>&nbsp;
+        <br>&nbsp;
+    </td>
     </tr>
     <tr>
     <td>Rotation</td>
@@ -102,6 +131,8 @@ $(document).ready(getCameraStatus)
 
 <!-- hidden unless camera is running -->
 <p id="see_output_link"><a href="/camera_status">See current output</a></p>
+
+<p id="camera_kill_link"><a href="/camera_kill" onclick="return confirm('Kill camera?')">Kill camera process</a></p>
 
 <hr>
 

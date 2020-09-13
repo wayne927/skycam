@@ -41,3 +41,8 @@ td:first-child {
 #shoot_button:disabled {
     background-color: gray;
 }
+
+#camera_kill_link a {
+    font-weight: bold;
+    color: red;
+}

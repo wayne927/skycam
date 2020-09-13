@@ -109,6 +109,14 @@ def get_camera_pid() :
 def get_camera_status() :
     return app.send_static_file('camera_status.html')
 
+@app.route("/camera_temperature")
+def get_camera_temperature() :
+    return str(camera.get_camera_temperature())
+
+@app.route("/camera_kill")
+def kill_camera() :
+    return camera.kill()
+
 @app.route("/<path:req_path>")
 def show(req_path) :
     req_path = req_path.strip('/')
