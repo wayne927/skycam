@@ -68,6 +68,9 @@ def take_pic() :
 
     if (setting_is_valid(request.form, 'ISO')) :
         settings['ISO'] = request.form['ISO']
+    
+    if (setting_is_valid(request.form, 'awb')) :
+        settings['awb'] = request.form['awb']
 
     if (setting_is_valid(request.form, 'shutter')) :
         settings['shutter'] = camera.shutter_in_seconds(float(request.form['shutter']))

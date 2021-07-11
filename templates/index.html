@@ -46,6 +46,12 @@ function toggleTimelapse() {
     $('#duration').prop('value', '')
 
     var timelapseEnabled = $('#timelapse').prop('checked')
+    var currentAwb = $('#awb').prop('value')
+
+    if ((currentAwb === 'auto') && timelapseEnabled) {
+        alert("Warning: AWB is auto")
+    }
+
     $('#cadence').prop('disabled', !timelapseEnabled)
     $('#duration').prop('disabled', !timelapseEnabled)
 }
@@ -71,11 +77,11 @@ $(document).ready(function() {
     </tr>
     <tr>
     <td>Width</td>
-    <td><input type="text" id="width" name="width" value="1000" onkeyup="adjustHeight()"></td>
+    <td><input type="text" id="width" name="width" value="1028" onkeyup="adjustHeight()"></td>
     </tr>
     <tr>
     <td>Height</td>
-    <td><input type="text" id="height" name="height" value="751"></td>
+    <td><input type="text" id="height" name="height" value="772"></td>
     </tr>
     <tr>
     <td colspan="2">
@@ -83,7 +89,7 @@ $(document).ready(function() {
             <label for="size_max">Max</label>&nbsp;
         <input type="radio" name="img_size" id="size_medium" onclick="setImageWidth(2000)")>
             <label for="size_medium">Medium</label>&nbsp;
-        <input type="radio" name="img_size" id="size_small" onclick="setImageWidth(1000)">
+        <input type="radio" name="img_size" id="size_small" onclick="setImageWidth(1028)">
             <label for="size_small">Small</label>&nbsp;
         <br>&nbsp;
     </td>
@@ -103,6 +109,19 @@ $(document).ready(function() {
     <tr>
     <td>ISO</td>
     <td><input type="text" id="ISO" name="ISO"></td>
+    </tr>
+    <td>White balance</td>
+    <td>
+        <select id="awb" name="awb">
+        <option value="auto">Auto</option>
+        <option value="sun">Sun</option>
+        <option value="cloud">Cloud</option>
+        <option value="shade">Shade</option>
+        <option value="tungsten">Tungsten</option>
+        <option value="fluorescent">Fluorescent</option>
+        <option value="incandescent">Incandescent</option>
+        </select>
+    </td>
     </tr>
     <tr>
     <td>Shutter</td>
